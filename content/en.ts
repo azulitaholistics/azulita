@@ -11,7 +11,7 @@ export const en: ContentStructure = {
       title: "Azulita Holistics",
       tagline: "Homeopathy · Wellness Coaching · Reiki",
       subtitle:
-        "I'm here to support you on your healing journey and help you develop greater wellbeing. Gruene!",
+        "I'm here to support you on your healing journey and help you develop greater wellbeing.",
       freeConsultation: "Free initial consultation (20 min)",
       cta: "BOOK YOUR CONSULTATION",
       callToAction: "Let's talk about how I can help you.",
