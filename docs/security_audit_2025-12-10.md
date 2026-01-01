@@ -16,6 +16,7 @@ This comprehensive security audit examined the Azulita Holistics website codebas
 The codebase demonstrates generally good security practices with no critical vulnerabilities identified. However, several areas require attention to harden the application against potential attacks and improve security posture.
 
 **Key Findings:**
+
 - **0 Critical vulnerabilities**
 - **1 High-severity issue** (Third-party script injection without integrity checks)
 - **4 Medium-severity issues** (Missing security headers, XSS risks, localStorage usage without validation)
@@ -23,6 +24,7 @@ The codebase demonstrates generally good security practices with no critical vul
 - **3 Informational items** (Best practices and hardening recommendations)
 
 **Good Security Practices Observed:**
+
 - No vulnerable dependencies (npm audit: 0 vulnerabilities)
 - No hardcoded secrets or API keys
 - Proper .gitignore configuration
@@ -47,8 +49,8 @@ The `useLanguageToggle` hook manipulates URL pathnames based on user-selected la
 
 ```typescript
 // Line 28-30 in useLanguageToggle.ts
-if (pathname.startsWith('/es')) {
-  const newPath = pathname.replace(/^\/es/, '') || '/';
+if (pathname.startsWith("/es")) {
+  const newPath = pathname.replace(/^\/es/, "") || "/";
   router.push(newPath);
 }
 ```
@@ -57,6 +59,7 @@ if (pathname.startsWith('/es')) {
 An attacker could potentially craft URLs with path traversal sequences or special characters that might bypass route matching or cause unexpected behavior. The regex replacement is basic and doesn't account for edge cases.
 
 **Attack Vector:**
+
 ```
 // Potential exploitation vectors:
 http://azulitaholistics.com/es/../../admin
@@ -65,9 +68,10 @@ http://azulitaholistics.com/es//services (double slashes)
 ```
 
 **Remediation:**
+
 ```typescript
 const toggleLanguage = () => {
-  const newLang = language === 'en' ? 'es' : 'en';
+  const newLang = language === "en" ? "es" : "en";
   setLanguage(newLang);
 
   // Validate pathname first
@@ -75,19 +79,19 @@ const toggleLanguage = () => {
   if (!validPathPattern.test(pathname)) {
     // Log suspicious activity
     console.warn(`Invalid pathname detected: ${pathname}`);
-    router.push(newLang === 'es' ? '/es' : '/');
+    router.push(newLang === "es" ? "/es" : "/");
     return;
   }
 
   // Convert current path to new language
-  if (newLang === 'es') {
-    if (!pathname.startsWith('/es')) {
-      const newPath = pathname === '/' ? '/es' : `/es${pathname}`;
+  if (newLang === "es") {
+    if (!pathname.startsWith("/es")) {
+      const newPath = pathname === "/" ? "/es" : `/es${pathname}`;
       router.push(newPath);
     }
   } else {
-    if (pathname.startsWith('/es')) {
-      const newPath = pathname.replace(/^\/es/, '').replace(/^$/, '/');
+    if (pathname.startsWith("/es")) {
+      const newPath = pathname.replace(/^\/es/, "").replace(/^$/, "/");
       router.push(newPath);
     }
   }
@@ -106,11 +110,11 @@ The `t()` translation function accepts arbitrary dot-notation key paths from use
 ```typescript
 // Lines 13-28 in useLanguage.ts
 const t = (keyPath: string): string => {
-  const keys = keyPath.split('.');
+  const keys = keyPath.split(".");
   let value: any = content;
 
   for (const key of keys) {
-    if (value && typeof value === 'object' && key in value) {
+    if (value && typeof value === "object" && key in value) {
       value = value[key];
     } else {
       console.warn(`Translation key not found: ${keyPath}`);
@@ -118,7 +122,7 @@ const t = (keyPath: string): string => {
     }
   }
 
-  return typeof value === 'string' ? value : keyPath;
+  return typeof value === "string" ? value : keyPath;
 };
 ```
 
@@ -126,18 +130,20 @@ const t = (keyPath: string): string => {
 Prototype pollution or object traversal attacks could occur if user input influences the keyPath. The function accesses object properties dynamically without protection against `__proto__`, `constructor`, or `prototype` pollution.
 
 **Proof of Concept:**
+
 ```typescript
 // If keyPath could be influenced by user input:
-t('__proto__.polluted')  // Could access prototype chain
-t('constructor.prototype.polluted')  // Prototype pollution vector
+t("__proto__.polluted"); // Could access prototype chain
+t("constructor.prototype.polluted"); // Prototype pollution vector
 ```
 
 **Remediation:**
+
 ```typescript
-const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 const t = (keyPath: string): string => {
-  const keys = keyPath.split('.');
+  const keys = keyPath.split(".");
 
   // Validate keys before traversal
   for (const key of keys) {
@@ -151,7 +157,11 @@ const t = (keyPath: string): string => {
 
   for (const key of keys) {
     // Use Object.hasOwnProperty for safe checking
-    if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, key)) {
+    if (
+      value &&
+      typeof value === "object" &&
+      Object.prototype.hasOwnProperty.call(value, key)
+    ) {
       value = value[key];
     } else {
       console.warn(`Translation key not found: ${keyPath}`);
@@ -159,7 +169,7 @@ const t = (keyPath: string): string => {
     }
   }
 
-  return typeof value === 'string' ? value : keyPath;
+  return typeof value === "string" ? value : keyPath;
 };
 ```
 
@@ -180,17 +190,19 @@ Implement a middleware or utility function to sanitize query parameters:
 
 ```typescript
 // lib/validation/queryParams.ts
-export function sanitizeQueryParams(params: Record<string, string | string[]>): Record<string, string | string[]> {
+export function sanitizeQueryParams(
+  params: Record<string, string | string[]>
+): Record<string, string | string[]> {
   const sanitized: Record<string, string | string[]> = {};
 
   for (const [key, value] of Object.entries(params)) {
     // Remove potentially dangerous characters
-    const cleanKey = key.replace(/[<>"'&]/g, '');
+    const cleanKey = key.replace(/[<>"'&]/g, "");
 
     if (Array.isArray(value)) {
-      sanitized[cleanKey] = value.map(v => v.replace(/[<>"'&]/g, ''));
+      sanitized[cleanKey] = value.map((v) => v.replace(/[<>"'&]/g, ""));
     } else {
-      sanitized[cleanKey] = value.replace(/[<>"'&]/g, '');
+      sanitized[cleanKey] = value.replace(/[<>"'&]/g, "");
     }
   }
 
@@ -211,6 +223,7 @@ The application is a static marketing website with no authentication, user accou
 
 **Recommendation:**
 If authentication is added in the future, implement:
+
 - Next-Auth or similar proven authentication library
 - Secure session management with httpOnly cookies
 - CSRF protection
@@ -240,25 +253,27 @@ Structured data is injected into the page using `dangerouslySetInnerHTML` with J
 If the schema object ever contains user-generated content or data from external sources, XSS could occur. JSON.stringify doesn't escape HTML entities like `</script>` which could break out of the script tag.
 
 **Proof of Concept:**
+
 ```typescript
 // If schema contained:
 const maliciousSchema = {
   "@type": "Organization",
-  "name": "</script><script>alert('XSS')</script><script>"
-}
+  name: "</script><script>alert('XSS')</script><script>",
+};
 // Would break out of the JSON-LD script tag
 ```
 
 **Remediation:**
+
 ```typescript
 function safeJSONStringify(obj: unknown): string {
   return JSON.stringify(obj)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/\//g, '\\u002f');
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/\//g, "\\u002f");
 }
 
-export function StructuredData({ type, lang = 'en' }: StructuredDataProps) {
+export function StructuredData({ type, lang = "en" }: StructuredDataProps) {
   // ... schema generation ...
 
   return (
@@ -286,8 +301,8 @@ Language preference is read from localStorage without validation, assuming it's 
 
 ```typescript
 // Lines 26-28 in LanguageContext.tsx
-const stored = localStorage.getItem('language') as Language | null;
-if (stored === 'en' || stored === 'es') {
+const stored = localStorage.getItem("language") as Language | null;
+if (stored === "en" || stored === "es") {
   setLanguageState(stored);
 }
 ```
@@ -296,21 +311,23 @@ if (stored === 'en' || stored === 'es') {
 While the code does validate against 'en' or 'es', relying on localStorage for application state without additional integrity checks could lead to issues if the validation is incomplete or if the code changes.
 
 **Attack Scenario:**
+
 1. Attacker finds XSS vulnerability (future code changes)
 2. Executes: `localStorage.setItem('language', '<script>alert(1)</script>')`
 3. If validation is removed or bypassed in future updates, XSS occurs
 
 **Remediation:**
+
 ```typescript
-const VALID_LANGUAGES = ['en', 'es'] as const;
+const VALID_LANGUAGES = ["en", "es"] as const;
 
 React.useEffect(() => {
   setIsClient(true);
   try {
-    const stored = localStorage.getItem('language');
+    const stored = localStorage.getItem("language");
 
     // Strict validation and sanitization
-    if (stored && typeof stored === 'string') {
+    if (stored && typeof stored === "string") {
       const trimmed = stored.trim().toLowerCase();
       if (VALID_LANGUAGES.includes(trimmed as Language)) {
         setLanguageState(trimmed as Language);
@@ -318,12 +335,12 @@ React.useEffect(() => {
         // Log suspicious activity
         console.warn(`Invalid language preference detected: ${stored}`);
         // Clear corrupted value
-        localStorage.removeItem('language');
+        localStorage.removeItem("language");
       }
     }
   } catch (error) {
     // Handle localStorage access errors (privacy mode, etc.)
-    console.error('Failed to access localStorage:', error);
+    console.error("Failed to access localStorage:", error);
   }
 }, []);
 ```
@@ -358,6 +375,7 @@ Dependency audit shows zero vulnerabilities:
 ```
 
 **Dependencies:**
+
 - next: 16.0.7 (latest)
 - react: 19.2.0 (latest)
 - react-dom: 19.2.0 (latest)
@@ -365,6 +383,7 @@ Dependency audit shows zero vulnerabilities:
 - Tailwind CSS: 4.x (latest)
 
 **Recommendation:**
+
 - Continue monitoring with `npm audit` regularly
 - Enable Dependabot or Renovate for automated dependency updates
 - Pin exact versions in package.json for production builds
@@ -382,17 +401,20 @@ Dependency audit shows zero vulnerabilities:
 Comprehensive search found no hardcoded secrets, API keys, or credentials in the codebase. The .gitignore properly excludes environment files.
 
 **Verification:**
+
 ```bash
 grep -r "password\|secret\|apikey\|api_key\|token\|credential" -i
 # Result: No matches in application code
 ```
 
 **Constants Reviewed:**
+
 - `BOOKING_URL`: Public Cal.com URL (not sensitive)
 - `SOCIAL_LINKS`: Public social media URLs
 - `siteConfig`: Public metadata only
 
 **Recommendations:**
+
 - If secrets are needed in the future, use Next.js environment variables with `NEXT_PUBLIC_` prefix for client-side only
 - Store sensitive keys server-side only (never in client bundles)
 - Use environment variable validation library like `zod` or `envalid`
@@ -410,12 +432,12 @@ The Cal.com embed script is loaded dynamically without Subresource Integrity (SR
 
 ```typescript
 // Lines 22-29 in CalEmbed.tsx
-const script = document.createElement('script');
-script.src = 'https://app.cal.com/embed/embed.js';
+const script = document.createElement("script");
+script.src = "https://app.cal.com/embed/embed.js";
 script.async = true;
 script.onload = () => setIsLoaded(true);
 script.onerror = () => {
-  console.error('Failed to load Cal.com embed script');
+  console.error("Failed to load Cal.com embed script");
   setIsLoaded(false);
 };
 ```
@@ -424,6 +446,7 @@ script.onerror = () => {
 If the Cal.com CDN is compromised or MITM'd, malicious JavaScript could be injected into your users' browsers. This is a **supply chain attack vector**.
 
 **Attack Scenario:**
+
 1. Attacker compromises Cal.com CDN or performs MITM attack
 2. Serves malicious `embed.js` instead of legitimate script
 3. Malicious code executes in context of azulitaholistics.com
@@ -432,19 +455,22 @@ If the Cal.com CDN is compromised or MITM'd, malicious JavaScript could be injec
 **Remediation:**
 
 Option 1 - Add SRI Hash (Recommended):
+
 ```typescript
 useEffect(() => {
-  const script = document.createElement('script');
-  script.src = 'https://app.cal.com/embed/embed.js';
+  const script = document.createElement("script");
+  script.src = "https://app.cal.com/embed/embed.js";
   script.async = true;
 
   // Add SRI integrity check
-  script.integrity = 'sha384-[HASH_HERE]'; // Get from Cal.com or compute
-  script.crossOrigin = 'anonymous';
+  script.integrity = "sha384-[HASH_HERE]"; // Get from Cal.com or compute
+  script.crossOrigin = "anonymous";
 
   script.onload = () => setIsLoaded(true);
   script.onerror = () => {
-    console.error('Failed to load Cal.com embed script - integrity check failed');
+    console.error(
+      "Failed to load Cal.com embed script - integrity check failed"
+    );
     setIsLoaded(false);
   };
 
@@ -459,8 +485,9 @@ useEffect(() => {
 ```
 
 Option 2 - Use Next.js Script Component:
+
 ```typescript
-import Script from 'next/script';
+import Script from "next/script";
 
 export function CalEmbed({ calLink, className }: CalEmbedProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -472,7 +499,7 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
         strategy="lazyOnload"
         onLoad={() => setIsLoaded(true)}
         onError={() => {
-          console.error('Failed to load Cal.com embed script');
+          console.error("Failed to load Cal.com embed script");
           setIsLoaded(false);
         }}
       />
@@ -484,7 +511,7 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
       <div
         data-cal-link={calLink}
         data-cal-config='{"layout":"month_view"}'
-        style={{ width: '100%', height: '100%', overflow: 'scroll' }}
+        style={{ width: "100%", height: "100%", overflow: "scroll" }}
       />
     </div>
   );
@@ -509,6 +536,7 @@ style={{ width: '100%', height: '100%', overflow: 'scroll' }}
 If CSP is implemented (recommended), inline styles without nonces will be blocked, breaking the calendar embed.
 
 **Remediation:**
+
 ```typescript
 // Move styles to CSS file instead of inline
 // components/CalEmbed.module.css
@@ -541,12 +569,14 @@ The application doesn't set `X-Frame-Options` or `Content-Security-Policy: frame
 An attacker could embed your website in an iframe on a malicious site and trick users into performing unintended actions (clickjacking).
 
 **Attack Scenario:**
+
 1. Attacker creates malicious site with hidden iframe of azulitaholistics.com
 2. Overlays invisible buttons over booking CTA
 3. User thinks they're clicking attacker's site but actually interacting with your booking form
 4. Could lead to unintended bookings or data exposure
 
 **Remediation:**
+
 ```typescript
 // next.config.ts
 import type { NextConfig } from "next";
@@ -555,27 +585,27 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
           },
           {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
           },
         ],
       },
@@ -598,6 +628,7 @@ export default nextConfig;
 The application is a pure static website with no API routes, server actions, or backend endpoints. This significantly reduces the attack surface.
 
 **Verification:**
+
 ```bash
 find app/api -type f
 # Result: No api directory found
@@ -605,6 +636,7 @@ find app/api -type f
 
 **Recommendation:**
 If API routes are added in the future, implement:
+
 - Rate limiting (e.g., using `next-rate-limit`)
 - CORS restrictions
 - Input validation with schema validation library (Zod, Yup)
@@ -635,6 +667,7 @@ The application doesn't implement a Content Security Policy (CSP), which is the 
 
 **Risk:**
 Without CSP, if an XSS vulnerability is introduced, attackers have unrestricted ability to:
+
 - Execute arbitrary JavaScript
 - Load malicious external resources
 - Exfiltrate sensitive data
@@ -652,10 +685,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'Content-Security-Policy',
+            key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://app.cal.com", // Cal.com embed
@@ -668,8 +701,8 @@ const nextConfig: NextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'",
-              "upgrade-insecure-requests"
-            ].join('; '),
+              "upgrade-insecure-requests",
+            ].join("; "),
           },
         ],
       },
@@ -699,6 +732,7 @@ The application doesn't explicitly configure CORS headers. For a static site wit
 **Current Status:** Acceptable for static site
 
 **Recommendation for Future API Routes:**
+
 ```typescript
 // next.config.ts
 async headers() {
@@ -729,15 +763,17 @@ The language toggle buttons have no rate limiting or debouncing, allowing rapid 
 
 **Risk:**
 While low impact, rapid toggling could:
+
 - Cause UI thrashing
 - Exhaust localStorage quota if combined with other issues
 - Create denial-of-service on client side
 - Generate excessive client-side errors in logging
 
 **Remediation:**
+
 ```typescript
 // lib/hooks/useDebounce.ts
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef } from "react";
 
 export function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
@@ -770,18 +806,18 @@ export function useLanguageToggle() {
     if (isToggling) return;
 
     setIsToggling(true);
-    const newLang = language === 'en' ? 'es' : 'en';
+    const newLang = language === "en" ? "es" : "en";
     setLanguage(newLang);
 
     // Convert current path to new language
-    if (newLang === 'es') {
-      if (!pathname.startsWith('/es')) {
-        const newPath = pathname === '/' ? '/es' : `/es${pathname}`;
+    if (newLang === "es") {
+      if (!pathname.startsWith("/es")) {
+        const newPath = pathname === "/" ? "/es" : `/es${pathname}`;
         router.push(newPath);
       }
     } else {
-      if (pathname.startsWith('/es')) {
-        const newPath = pathname.replace(/^\/es/, '') || '/';
+      if (pathname.startsWith("/es")) {
+        const newPath = pathname.replace(/^\/es/, "") || "/";
         router.push(newPath);
       }
     }
@@ -804,23 +840,28 @@ export function useLanguageToggle() {
 The entire booking flow depends on an external service (Cal.com). If Cal.com experiences downtime or security issues, the booking functionality is unavailable.
 
 **Current Implementation:**
+
 ```typescript
-export const BOOKING_URL = 'https://cal.com/azulitaholistics-xzejuw/free-consultation';
+export const BOOKING_URL =
+  "https://cal.com/azulitaholistics-xzejuw/free-consultation";
 ```
 
 **Risk:**
+
 - Single point of failure for critical business function
 - No fallback if Cal.com is down
 - User data passes through third-party service
 - Privacy implications of external dependency
 
 **Recommendations:**
+
 1. Add monitoring for Cal.com availability
 2. Implement fallback contact form if booking iframe fails to load
 3. Display clear privacy notice about Cal.com usage
 4. Consider self-hosting booking solution in the future
 
 Example fallback implementation:
+
 ```typescript
 // components/CalEmbed.tsx
 export function CalEmbed({ calLink, className }: CalEmbedProps) {
@@ -828,13 +869,13 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://app.cal.com/embed/embed.js';
+    const script = document.createElement("script");
+    script.src = "https://app.cal.com/embed/embed.js";
     script.async = true;
 
     const timeout = setTimeout(() => {
       if (!isLoaded) {
-        console.error('Cal.com embed timeout - showing fallback');
+        console.error("Cal.com embed timeout - showing fallback");
         setHasError(true);
       }
     }, 10000); // 10 second timeout
@@ -845,7 +886,7 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
     };
 
     script.onerror = () => {
-      console.error('Failed to load Cal.com embed script');
+      console.error("Failed to load Cal.com embed script");
       setHasError(true);
       clearTimeout(timeout);
     };
@@ -863,14 +904,13 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
   if (hasError) {
     return (
       <div className="cal-fallback bg-primary-light p-8 rounded-lg text-center">
-        <h3 className="text-xl font-bold mb-4">Booking Temporarily Unavailable</h3>
+        <h3 className="text-xl font-bold mb-4">
+          Booking Temporarily Unavailable
+        </h3>
         <p className="mb-4">
           Please contact us directly to schedule your consultation:
         </p>
-        <a
-          href="mailto:azulitaholistics@gmail.com"
-          className="btn-primary"
-        >
+        <a href="mailto:azulitaholistics@gmail.com" className="btn-primary">
           Email Us
         </a>
       </div>
@@ -887,7 +927,7 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
       <div
         data-cal-link={calLink}
         data-cal-config='{"layout":"month_view"}'
-        style={{ width: '100%', height: '100%', overflow: 'scroll' }}
+        style={{ width: "100%", height: "100%", overflow: "scroll" }}
       />
     </div>
   );
@@ -903,12 +943,13 @@ export function CalEmbed({ calLink, className }: CalEmbedProps) {
 **Location:** Multiple files with `console.error` and `console.warn` statements
 
 **Examples:**
+
 - `/Users/adj/Documents/Code/app-development/azulita/components/CalEmbed.tsx:27`
 - `/Users/adj/Documents/Code/app-development/azulita/lib/i18n/useLanguage.ts:22`
 
 ```typescript
 // CalEmbed.tsx line 27
-console.error('Failed to load Cal.com embed script');
+console.error("Failed to load Cal.com embed script");
 
 // useLanguage.ts line 22
 console.warn(`Translation key not found: ${keyPath}`);
@@ -923,33 +964,33 @@ Implement a logging utility that only logs in development:
 
 ```typescript
 // lib/utils/logger.ts
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export const logger = {
   error: (...args: any[]) => {
     if (isDevelopment) {
-      console.error('[App Error]', ...args);
+      console.error("[App Error]", ...args);
     }
     // In production, send to monitoring service
     // e.g., Sentry.captureException(args[0]);
   },
   warn: (...args: any[]) => {
     if (isDevelopment) {
-      console.warn('[App Warning]', ...args);
+      console.warn("[App Warning]", ...args);
     }
   },
   info: (...args: any[]) => {
     if (isDevelopment) {
-      console.info('[App Info]', ...args);
+      console.info("[App Info]", ...args);
     }
   },
 };
 
 // Usage in CalEmbed.tsx
-import { logger } from '@/lib/utils/logger';
+import { logger } from "@/lib/utils/logger";
 
 script.onerror = () => {
-  logger.error('Failed to load Cal.com embed script');
+  logger.error("Failed to load Cal.com embed script");
   setIsLoaded(false);
 };
 ```
@@ -970,10 +1011,10 @@ If a component throws an error, the entire page becomes blank, creating a poor u
 
 ```typescript
 // components/ErrorBoundary.tsx
-'use client';
+"use client";
 
-import { Component, ReactNode } from 'react';
-import { logger } from '@/lib/utils/logger';
+import { Component, ReactNode } from "react";
+import { logger } from "@/lib/utils/logger";
 
 interface Props {
   children: ReactNode;
@@ -996,22 +1037,26 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    logger.error('Error boundary caught error:', error, errorInfo);
+    logger.error("Error boundary caught error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="error-container p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-          <p className="mb-4">We're sorry for the inconvenience. Please try refreshing the page.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="btn-primary"
-          >
-            Refresh Page
-          </button>
-        </div>
+      return (
+        this.props.fallback || (
+          <div className="error-container p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+            <p className="mb-4">
+              We're sorry for the inconvenience. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Refresh Page
+            </button>
+          </div>
+        )
       );
     }
 
@@ -1020,7 +1065,11 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 // app/layout.tsx - Wrap entire app
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
@@ -1051,6 +1100,7 @@ Without a referrer policy, full URLs (including query parameters) may be sent to
 
 **Remediation:**
 Add to security headers in `next.config.ts` (included in CSP recommendation above):
+
 ```typescript
 {
   key: 'Referrer-Policy',
@@ -1068,11 +1118,13 @@ Add to security headers in `next.config.ts` (included in CSP recommendation abov
 Several accessibility improvements would also enhance security:
 
 1. **Skip Navigation Link**: Present but could be improved
+
    - Location: `/Users/adj/Documents/Code/app-development/azulita/components/Layout.tsx:16-21`
    - Good: Provides keyboard navigation
    - Improvement: Add focus trap for modals to prevent focus escape
 
 2. **ARIA Labels**: Present on buttons
+
    - Location: Navigation and LanguageBanner components
    - Good: Proper aria-label usage
    - Maintains: Better user awareness of actions
@@ -1105,21 +1157,25 @@ None identified in current codebase.
 ### MEDIUM PRIORITY (Implement Within 2-4 Weeks)
 
 2. **Implement Content Security Policy**
+
    - File: `next.config.ts`
    - Action: Add CSP headers as specified
    - Impact: Primary XSS defense
 
 3. **Add Security Headers**
+
    - File: `next.config.ts`
    - Action: Add X-Frame-Options, X-Content-Type-Options, etc.
    - Impact: Defense in depth against common attacks
 
 4. **Validate Pathname Manipulation**
+
    - File: `lib/i18n/useLanguageToggle.ts`
    - Action: Add pathname validation before routing
    - Impact: Prevents potential path traversal
 
 5. **Harden LocalStorage Usage**
+
    - File: `lib/i18n/LanguageContext.tsx`
    - Action: Add try-catch and stricter validation
    - Impact: Prevents data corruption and edge case bugs
@@ -1134,14 +1190,17 @@ None identified in current codebase.
 ### LOW PRIORITY (Implement Within 1-3 Months)
 
 7. **Implement Error Boundaries**
+
    - Action: Add React Error Boundaries
    - Impact: Better error handling and UX
 
 8. **Add Production Logging**
-   - Action: Replace console.* with production-safe logger
+
+   - Action: Replace console.\* with production-safe logger
    - Impact: Prevents information leakage
 
 9. **Add Rate Limiting to Language Toggle**
+
    - File: `lib/i18n/useLanguageToggle.ts`
    - Action: Debounce toggle function
    - Impact: Prevents client-side DoS
@@ -1156,10 +1215,12 @@ None identified in current codebase.
 ### INFORMATIONAL (Consider for Future)
 
 11. **Monitor Dependencies**
+
     - Action: Set up Dependabot or Renovate
     - Impact: Automated security updates
 
 12. **Add Booking Fallback**
+
     - File: `components/CalEmbed.tsx`
     - Action: Implement email fallback when Cal.com is down
     - Impact: Business continuity
@@ -1175,12 +1236,14 @@ None identified in current codebase.
 ### Recommended Security Tests
 
 1. **Manual Testing**
+
    - [ ] Test language toggle with various URL patterns
    - [ ] Verify external links open in new tabs with proper rel attributes
    - [ ] Test booking embed loads correctly and fails gracefully
    - [ ] Verify no errors in browser console in production build
 
 2. **Automated Testing**
+
    ```bash
    # Dependency audit
    npm audit
@@ -1210,10 +1273,12 @@ None identified in current codebase.
 **Current Status:** Good
 
 The website collects minimal user data:
+
 - Language preference (stored in localStorage)
 - Booking data (handled by Cal.com)
 
 **Recommendations:**
+
 1. Add Privacy Policy page explaining Cal.com data sharing
 2. Add Cookie Banner if tracking cookies are used (currently none detected)
 3. Ensure Cal.com is GDPR compliant (verify with Cal.com documentation)
@@ -1223,6 +1288,7 @@ The website collects minimal user data:
 **Current Status:** Good foundation
 
 Accessibility features present:
+
 - Semantic HTML structure
 - Proper heading hierarchy
 - Alt text on images
@@ -1237,6 +1303,7 @@ Accessibility features present:
 The Azulita Holistics website demonstrates **solid security fundamentals** with no critical vulnerabilities. The codebase follows modern React and Next.js best practices, uses TypeScript for type safety, and has clean dependencies.
 
 **Key Strengths:**
+
 - No vulnerable dependencies
 - No hardcoded secrets
 - Proper use of Next.js security features
@@ -1244,6 +1311,7 @@ The Azulita Holistics website demonstrates **solid security fundamentals** with 
 - Minimal attack surface (static site, no API)
 
 **Areas Requiring Attention:**
+
 - Missing Content Security Policy (most important)
 - Third-party script integrity
 - Security headers configuration
@@ -1252,6 +1320,7 @@ The Azulita Holistics website demonstrates **solid security fundamentals** with 
 **Overall Security Posture:** The application is **suitable for production** with the HIGH priority items addressed. The identified issues are typical for a new static website and can be resolved through configuration changes rather than architectural rewrites.
 
 **Estimated Remediation Effort:**
+
 - HIGH priority items: 4-8 hours
 - MEDIUM priority items: 8-16 hours
 - LOW priority items: 8-12 hours
@@ -1264,6 +1333,7 @@ The Azulita Holistics website demonstrates **solid security fundamentals** with 
 Use this checklist to track remediation progress:
 
 ### Configuration
+
 - [ ] Add Content Security Policy headers
 - [ ] Add X-Frame-Options header
 - [ ] Add X-Content-Type-Options header
@@ -1271,6 +1341,7 @@ Use this checklist to track remediation progress:
 - [ ] Add Permissions-Policy header
 
 ### Code Changes
+
 - [ ] Add SRI to Cal.com script
 - [ ] Validate pathname in useLanguageToggle
 - [ ] Harden localStorage access with error handling
@@ -1279,12 +1350,14 @@ Use this checklist to track remediation progress:
 - [ ] Add Error Boundaries
 
 ### Testing
+
 - [ ] Run npm audit (verify 0 vulnerabilities)
 - [ ] Test CSP with csp-evaluator
 - [ ] Verify security headers with securityheaders.com
 - [ ] Manual testing of all CTAs and navigation
 
 ### Documentation
+
 - [ ] Update README with security considerations
 - [ ] Document third-party dependencies and risks
 - [ ] Add privacy policy for Cal.com integration
@@ -1305,6 +1378,7 @@ Use this checklist to track remediation progress:
 ### Security Monitoring
 
 Consider implementing:
+
 - **Sentry:** Error tracking and monitoring
 - **LogRocket:** Session replay for debugging
 - **Vercel Analytics:** If deployed on Vercel
