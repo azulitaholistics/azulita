@@ -1,0 +1,159 @@
+/* ========================================
+   AZULITA HOLISTICS - COLOR SYSTEM
+   ========================================
+
+   HOW TO CHANGE COLORS ON THE WEBSITE:
+
+   This is the ONLY file you need to edit to change colors anywhere on the site.
+   All colors throughout the website reference these variables.
+
+   STEPS TO CHANGE A COLOR:
+   1. Find the color you want to change below (e.g., --color-primary)
+   2. Change BOTH the hex code AND the RGB values:
+
+      Example - Changing primary color from teal to purple:
+      OLD:
+        --color-primary: #1A7B7B;
+        --color-primary-rgb: 26, 123, 123;
+
+      NEW:
+        --color-primary: #8B5CF6;
+        --color-primary-rgb: 139, 92, 246;
+
+   3. Save the file - all pages will automatically update!
+
+   HOW TO CONVERT HEX TO RGB:
+   - Use a color picker tool (search "hex to rgb converter")
+   - Or in your browser dev tools, click any color to see RGB values
+   - Example: #1A7B7B = RGB(26, 123, 123)
+
+   IMPORTANT: Always update BOTH the hex AND rgb values together!
+   The hex value is used for solid colors.
+   The rgb value is used for transparent effects (shadows, overlays, gradients).
+
+   Color Guide:
+   - Primary: Main teal/ocean color (buttons, links, headers)
+   - Secondary: Coral/rust accent color (footer, highlights)
+   - Neutral: Beige/cream colors (backgrounds, borders)
+   - Accent: Gold/warm colors (call-to-action, highlights)
+   - Background: Main page background
+   - Foreground: Main text color
+   - Text Light/Muted: Lighter text for secondary content
+
+   ======================================== */
+
+:root {
+  /* ========================================
+     BRAND COLORS - Warm Earth & Ocean Palette
+     ======================================== */
+
+  /* Primary Colors (Teal/Ocean) - Used for main branding, buttons, navigation */
+  --color-primary: #1A7B7B;           /* Main teal color */
+  --color-primary-rgb: 26, 123, 123;  /* RGB version for transparent effects */
+  --color-primary-light: #2D9B9B;     /* Lighter teal for hover states */
+  --color-primary-dark: #0F5252;      /* Darker teal for emphasis */
+
+  /* Secondary Colors (Coral/Rust) - Used for footer, accents, highlights */
+  --color-secondary: #C85A3F;         /* Main coral/rust color */
+  --color-secondary-rgb: 200, 90, 63; /* RGB version for transparent effects */
+  --color-secondary-light: #D97B63;   /* Lighter coral for subtle elements */
+
+  /* Neutral Colors (Beige/Cream) - Used for backgrounds, borders, cards */
+  --color-neutral: #E7DACB;           /* Main beige/cream color */
+  --color-neutral-rgb: 231, 218, 203; /* RGB version for transparent effects */
+  --color-neutral-light: #F4EDE3;     /* Light cream for subtle backgrounds */
+
+  /* Accent Colors (Gold/Warm) - Used for call-to-action, highlights */
+  --color-accent: #E6A656;            /* Main gold color */
+  --color-accent-rgb: 230, 166, 86;   /* RGB version for transparent effects */
+  --color-accent-bright: #F5C77A;     /* Bright gold for emphasis */
+
+  /* Navigation Bar Gradient (Prominent Teal/Ocean) - Independent navbar colors */
+  --color-nav-start: #0F5252;         /* Gradient start - dark teal */
+  --color-nav-start-rgb: 15, 82, 82;  /* RGB version for transparent effects */
+  --color-nav-mid: #1A7B7B;           /* Gradient middle - medium teal */
+  --color-nav-mid-rgb: 26, 123, 123;  /* RGB version for transparent effects */
+  --color-nav-end: #2D9B9B;           /* Gradient end - bright teal */
+  --color-nav-end-rgb: 45, 155, 155;  /* RGB version for transparent effects */
+
+  /* Brand Title Color (Blue) - Matches butterfly logo */
+  --color-brand-blue: #123e6e;        /* Deep blue for brand title */
+  --color-brand-blue-rgb: 18, 62, 110; /* RGB version for transparent effects */
+
+  /* Footer Background (Teal/Ocean) - Independent footer color */
+  --color-footer-bg: #1A7B7B;         /* Teal background for footer */
+  --color-footer-bg-rgb: 26, 123, 123; /* RGB version for transparent effects */
+
+  /* ========================================
+     SEMANTIC COLORS - Applied Throughout Site
+     ======================================== */
+
+  /* Page Colors */
+  --color-background: #FAF8F5;        /* Main page background (warm white) */
+  --color-background-rgb: 250, 248, 245; /* RGB version for transparent effects */
+  --color-foreground: #2B3A3A;        /* Main text color (dark teal-gray) */
+  --color-foreground-rgb: 43, 58, 58; /* RGB version for transparent effects */
+
+  /* Text Colors */
+  --color-text-light: #6B5D52;        /* Secondary text (medium brown) */
+
+  /* White (for transparent overlays) */
+  --color-white-rgb: 255, 255, 255;   /* RGB version for transparent effects */
+
+  /* ========================================
+     OPACITY LEVELS
+     Used for transparent overlays, shadows, and subtle effects
+     ======================================== */
+  --opacity-none: 0;
+  --opacity-xs: 0.02;        /* Extra subtle - barely visible backgrounds */
+  --opacity-subtle: 0.08;    /* Subtle - gentle overlays */
+  --opacity-soft: 0.1;       /* Soft - shadows and light overlays */
+  --opacity-light: 0.12;     /* Light - visible but not strong */
+  --opacity-medium: 0.15;    /* Medium - noticeable overlays */
+  --opacity-normal: 0.25;    /* Normal - standard transparency */
+  --opacity-strong: 0.35;    /* Strong - prominent overlays */
+  --opacity-white: 0.95;     /* Nearly opaque white - navigation background */
+
+  /* Spacing */
+  --spacing-section: 4rem;
+  --spacing-card: 1.5rem;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Typography */
+  --font-heading: var(--font-spectral), Georgia, serif;
+  --font-body: var(--font-karla), system-ui, sans-serif;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* ========================================
+     SHADOWS
+     Default shadow definitions using opacity variables
+     ======================================== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, var(--opacity-soft));
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, var(--opacity-soft));
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, var(--opacity-soft));
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+}

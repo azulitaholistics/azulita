@@ -1,0 +1,193 @@
+/* Page-specific layout classes */
+
+@layer components {
+  /* Main Background - soft earth gradient for all pages */
+  .main-background {
+    background: radial-gradient(
+        ellipse at top right,
+        rgba(var(--color-accent-rgb), var(--opacity-medium)),
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at bottom left,
+        rgba(var(--color-primary-rgb), var(--opacity-light)),
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(var(--color-secondary-rgb), var(--opacity-subtle)),
+        transparent 60%
+      ),
+      linear-gradient(
+        135deg,
+        var(--color-background) 0%,
+        var(--color-neutral-light) 100%
+      );
+  }
+
+  /* Hero Section */
+  .hero-section {
+    /* bottom padding controls gap between CTA buttons and footer */
+    padding: 1rem 0 4rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(var(--color-primary-rgb), var(--opacity-xs)) 0px,
+        transparent 2px,
+        transparent 40px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(var(--color-primary-rgb), var(--opacity-xs)) 0px,
+        transparent 2px,
+        transparent 40px
+      );
+    pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .hero-section {
+      /* bottom padding controls gap between CTA buttons and footer */
+      padding: 2rem 0 5rem;
+    }
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin-bottom: 1.5rem;
+    font-family: var(--font-heading);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  @media (min-width: 768px) {
+    .hero-title {
+      font-size: 3.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-title {
+      font-size: 4.25rem;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 2rem;
+    font-family: var(--font-body);
+    line-height: 1.7;
+  }
+
+  @media (min-width: 768px) {
+    .hero-subtitle {
+      font-size: 1.3rem;
+    }
+  }
+
+  /* Page Header */
+  .page-header-compact {
+    padding: 2rem 0 0.5rem;
+    text-align: center;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .page-header-compact {
+      padding: 2rem 0 0.75rem;
+    }
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin: 0 0 0.5rem 0; /* <-- add this */
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    line-height: 1.1; /* optional but often helps visually */
+  }
+
+  @media (min-width: 768px) {
+    .page-title {
+      font-size: 3.25rem;
+    }
+  }
+
+  .page-subtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--font-body);
+    line-height: 1.7;
+  }
+
+  @media (min-width: 768px) {
+    .page-subtitle {
+      font-size: 1.3rem;
+    }
+  }
+
+  /* Section Spacing */
+  .section-spacing {
+    padding-top: 2rem;
+    padding-bottom: var(--spacing-section);
+  }
+
+  /* Content Sections */
+  .text-body {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    line-height: 1.75;
+    font-family: var(--font-body);
+  }
+
+  .text-body-spacing {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Services Page */
+  .service-detail-title {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin-bottom: 1rem;
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 768px) {
+    .service-detail-title {
+      font-size: 2rem;
+    }
+  }
+
+  .service-detail-description {
+    font-size: 1.125rem;
+    color: var(--color-text-light);
+    margin-bottom: 1.5rem;
+    font-family: var(--font-body);
+    line-height: 1.7;
+  }
+
+}
