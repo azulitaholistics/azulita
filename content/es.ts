@@ -11,10 +11,10 @@ export const es: ContentStructure = {
       title: "Azulita Holistics",
       tagline: "Homeopatía · Coaching Holístico · Reiki",
       subtitle:
-        "Estoy aquí para acompañarte en tu camino de sanación y tu desarrollo hacia mayor bienestar.",
+        "Estoy aquí para acompañarte en tu camino de sanación y para ayudarte a alcanzar mayor bienestar.",
       freeConsultation: "Consulta inicial gratis (20 min)",
       cta: "AGENDA TU CONSULTA",
-      callToAction: "Platiquemos para determinar cómo te puedo ayudar.",
+      callToAction: "Platiquemos de cómo te puedo ayudar.",
     },
   },
   about: {
